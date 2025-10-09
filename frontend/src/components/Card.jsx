@@ -12,7 +12,7 @@ const CourseCard = ({ thumbnail, title, category, price ,id , reviews }) => {
 
 // Usage:
 const avgRating = calculateAverageRating(reviews);
-console.log("Average Rating:", avgRating);
+console.log("Average Rating: Imran", avgRating);
   return (
     <div className="max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-300" onClick={()=>navigate(`/viewcourse/${id}`)}>
       {/* Thumbnail */}
