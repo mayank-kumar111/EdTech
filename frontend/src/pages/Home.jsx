@@ -16,7 +16,7 @@ function Home() {
 
   return (
 
-    // main div
+    
     
     <div className='w-[100%] overflow-hidden'>
       
