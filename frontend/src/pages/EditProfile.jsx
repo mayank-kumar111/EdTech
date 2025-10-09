@@ -99,9 +99,7 @@ function EditProfile() {
               placeholder={userData.email}
             />
           </div>
-
-         
-
+          
           {/* Description */}
           <div>
             <label className="text-sm font-medium text-gray-700">Description</label>

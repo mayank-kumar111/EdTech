@@ -36,7 +36,10 @@ function Profile() {
             <span>{userData.description}</span>
           </div>
 
-          
+          <div className="text-sm">
+            <span className="font-semibold text-gray-700">Location: </span>
+            <span>{userData.location}</span>
+          </div>
 
           <div className="text-sm">
             <span className="font-semibold text-gray-700">Enrolled Courses: </span>
