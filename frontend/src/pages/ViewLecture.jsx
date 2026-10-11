@@ -62,15 +62,9 @@ function ViewLecture() {
         throw new Error("WebGazer did not load with the expected API.");
       }
 
-      // The hosted WebGazer build defaults to a MediaPipe tracker whose model
-      // assets are requested relative to the current SPA route (404 on nested
-      // routes). Select the legacy CLM tracker before begin when supported.
-      if (typeof webgazer.setTracker === "function") {
-        webgazer.setTracker("clmtrackr");
-      }
-      if (typeof webgazer.setRegression === "function") {
-        webgazer.setRegression("ridge");
-      }
+      // The remote script reports "Invalid tracker selection" for tracker
+      // names that are not included in its current build. Keep its supported
+      // default tracker and avoid overriding it with a guessed tracker name.
       await webgazer.begin();
       webgazer.setGazeListener((gaze) => {
         if (!gaze || gaze.x == null || gaze.y == null || !videoRef.current) return;
