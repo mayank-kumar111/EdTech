@@ -89,6 +89,15 @@ console.log("Average Rating:", avgRating);
     checkEnrollment()
   }, [courseId,courseData,lectureData])
 
+  useEffect(() => {
+    if (!selectedLecture && selectedCourseData?.lectures?.length) {
+      const firstAvailableLecture =
+        selectedCourseData.lectures.find((lecture) => lecture.isPreviewFree) ||
+        selectedCourseData.lectures[0];
+      setSelectedLecture(firstAvailableLecture);
+    }
+  }, [selectedCourseData, selectedLecture]);
+
 
     // Fetch creator info once course data is available
   useEffect(() => {
