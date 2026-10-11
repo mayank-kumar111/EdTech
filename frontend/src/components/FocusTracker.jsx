@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const FocusTracker = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { courseId } = useParams();
+  const courseVideoUrl = location.state?.videoUrl;
   const statusBoxRef = useRef(null);
   const contentBoxRef = useRef(null);
   const videoRef = useRef(null);
@@ -225,9 +230,6 @@ const [debugData, setDebugData] = useState({});
     try {
       if (!window.webgazer) throw new Error("WebGazer not loaded");
       setStatus("Requesting camera access...");
-      if (navigator.mediaDevices?.getUserMedia) {
-        await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } });
-      }
       setStatus("Initializing eye tracking...");
       const webgazer = window.webgazer.setRegression("ridge").setTracker("clmtrackr").saveDataAcrossSessions(true);
       if (window.webgazer.params) {
@@ -315,11 +317,15 @@ const [debugData, setDebugData] = useState({});
 
   return (
     <div style={{ textAlign: "center", marginTop: "30px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Smart Attention Tracker</h1>
+      <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+        <button type="button" onClick={() => navigate(courseId ? `/viewcourse/${courseId}` : "/")} style={{ padding: "8px 14px", borderRadius: "6px", border: "1px solid #bbb", cursor: "pointer" }}>← Back to course</button>
+        <h1>Smart Attention Tracker</h1>
+      </div>
       <p>{isLoading ? "Loading eye tracking..." : "Focus on the video below. Eye tracking will pause/play automatically."}</p>
+      {!courseVideoUrl && <p style={{ color: "#B45309" }}>No course lecture was passed to the tracker, so the demo video is shown. Return to the course and select a preview lecture first.</p>}
       <div ref={contentBoxRef} style={{ width: "70%", maxWidth: "800px", height: "400px", margin: "20px auto", border: "3px solid #333", borderRadius: "10px", position: "relative", display: "flex", justifyContent: "center", alignItems: "center", background: "#000" }}>
         <video ref={videoRef} width="100%" height="100%" controls preload="metadata" onError={handleVideoError} style={{ borderRadius: "7px" }}>
-          <source src="https://media.w3.org/2010/05/sintel/trailer_hd.mp4" type="video/mp4" />
+          <source src={courseVideoUrl || "https://media.w3.org/2010/05/sintel/trailer_hd.mp4"} type="video/mp4" />
           Your browser does not support video playback.
         </video>
       </div>
