@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlayCircle } from 'react-icons/fa';
@@ -13,6 +13,90 @@ function ViewLecture() {
   const [selectedLecture, setSelectedLecture] = useState(
     selectedCourse?.lectures?.[0] || null
   );
+  const videoRef = useRef(null);
+  const trackingStartedRef = useRef(false);
+  const lastGazeInsideRef = useRef(Date.now());
+  const trackingTimerRef = useRef(null);
+  const [trackingStatus, setTrackingStatus] = useState("Eye tracking starts when you play a lecture");
+  const [trackingError, setTrackingError] = useState("");
+
+  const stopEyeTracking = useCallback(() => {
+    if (trackingTimerRef.current) {
+      clearInterval(trackingTimerRef.current);
+      trackingTimerRef.current = null;
+    }
+    try {
+      const webgazer = window.webgazer;
+      if (webgazer && typeof webgazer.clearGazeListener === "function") webgazer.clearGazeListener();
+      if (webgazer && typeof webgazer.end === "function") webgazer.end();
+    } catch (error) {
+      console.warn("Could not stop eye tracking cleanly:", error);
+    }
+    trackingStartedRef.current = false;
+  }, []);
+
+  const startEyeTracking = useCallback(async () => {
+    if (trackingStartedRef.current || !videoRef.current) return;
+    setTrackingError("");
+    setTrackingStatus("Starting eye tracking…");
+
+    try {
+      if (!window.webgazer) {
+        let script = document.querySelector('script[data-webgazer-script="true"]');
+        if (!script) {
+          script = document.createElement("script");
+          script.src = "https://webgazer.cs.brown.edu/webgazer.js";
+          script.async = true;
+          script.dataset.webgazerScript = "true";
+          document.head.appendChild(script);
+        }
+        await new Promise((resolve, reject) => {
+          if (window.webgazer) return resolve();
+          script.addEventListener("load", resolve, { once: true });
+          script.addEventListener("error", () => reject(new Error("Could not load the WebGazer library. Check your internet connection.")), { once: true });
+        });
+      }
+
+      const webgazer = window.webgazer;
+      if (!webgazer || typeof webgazer.begin !== "function" || typeof webgazer.setGazeListener !== "function") {
+        throw new Error("WebGazer did not load with the expected API.");
+      }
+
+      // Keep API calls separate; do not rely on configuration methods returning
+      // the WebGazer object. Start tracking only when the lecture starts playing.
+      await webgazer.begin();
+      webgazer.setGazeListener((gaze) => {
+        if (!gaze || gaze.x == null || gaze.y == null || !videoRef.current) return;
+        const rect = videoRef.current.getBoundingClientRect();
+        const inside = gaze.x >= rect.left && gaze.x <= rect.right &&
+          gaze.y >= rect.top && gaze.y <= rect.bottom;
+        if (inside) {
+          lastGazeInsideRef.current = Date.now();
+          setTrackingStatus("Focused — looking at the lecture");
+        } else {
+          setTrackingStatus("Look back at the lecture");
+        }
+      });
+      trackingStartedRef.current = true;
+      lastGazeInsideRef.current = Date.now();
+      setTrackingStatus("Eye tracking active");
+
+      trackingTimerRef.current = setInterval(() => {
+        const video = videoRef.current;
+        if (video && !video.paused && Date.now() - lastGazeInsideRef.current > 4000) {
+          video.pause();
+          setTrackingStatus("Lecture paused — look at the video to continue");
+        }
+      }, 500);
+    } catch (error) {
+      console.error("Lecture eye tracking failed:", error, error?.stack);
+      setTrackingError(error?.message || "Eye tracking could not be started.");
+      setTrackingStatus("Eye tracking unavailable");
+      stopEyeTracking();
+    }
+  }, [stopEyeTracking]);
+
+  useEffect(() => () => stopEyeTracking(), [stopEyeTracking]);
   const navigate = useNavigate()
   const courseCreator = userData?._id === selectedCourse?.creator ? userData : null;
 
@@ -37,16 +121,33 @@ function ViewLecture() {
         <div className="aspect-video bg-black rounded-xl overflow-hidden mb-4 border border-gray-300">
           {selectedLecture?.videoUrl ? (
             <video
+              ref={videoRef}
               src={selectedLecture.videoUrl}
               controls
               className="w-full h-full object-cover"
               crossOrigin="anonymous"
+              onPlay={startEyeTracking}
+              onPause={() => {
+                if (trackingStartedRef.current) setTrackingStatus("Lecture paused");
+              }}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-white">
               Select a lecture to start watching
             </div>
           )}
+        </div>
+
+        <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+          <p className="text-sm font-semibold text-gray-800">{trackingStatus}</p>
+          {trackingError && (
+            <p className="mt-1 text-sm text-red-600">
+              Eye tracking error: {trackingError}. The lecture video can still be watched; open the browser Console for the detailed error.
+            </p>
+          )}
+          <p className="mt-1 text-xs text-gray-600">
+            Eye tracking starts when you press Play. If your gaze stays outside the video for 4 seconds, playback pauses.
+          </p>
         </div>
 
         {/* Selected Lecture Info */}
@@ -64,7 +165,13 @@ function ViewLecture() {
             selectedCourse.lectures.map((lecture, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedLecture(lecture)}
+                onClick={() => {
+                  const wasTracking = trackingStartedRef.current;
+                  stopEyeTracking();
+                  setSelectedLecture(lecture);
+                  setTrackingError("");
+                  setTrackingStatus("Eye tracking starts when you play a lecture");
+                }}
                 className={`flex items-center justify-between p-3 rounded-lg border transition text-left ${
                   selectedLecture?._id === lecture._id
                     ? 'bg-gray-200 border-gray-500'
