@@ -62,8 +62,15 @@ function ViewLecture() {
         throw new Error("WebGazer did not load with the expected API.");
       }
 
-      // Keep API calls separate; do not rely on configuration methods returning
-      // the WebGazer object. Start tracking only when the lecture starts playing.
+      // The hosted WebGazer build defaults to a MediaPipe tracker whose model
+      // assets are requested relative to the current SPA route (404 on nested
+      // routes). Select the legacy CLM tracker before begin when supported.
+      if (typeof webgazer.setTracker === "function") {
+        webgazer.setTracker("clmtrackr");
+      }
+      if (typeof webgazer.setRegression === "function") {
+        webgazer.setRegression("ridge");
+      }
       await webgazer.begin();
       webgazer.setGazeListener((gaze) => {
         if (!gaze || gaze.x == null || gaze.y == null || !videoRef.current) return;
