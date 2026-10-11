@@ -235,18 +235,8 @@ const [debugData, setDebugData] = useState({});
       setError(null);
       setStatus("Initializing eye tracking...");
 
-      // Do not chain these calls: WebGazer API versions do not consistently
-      // return the API object from configuration methods.
-      if (typeof webgazer.setRegression === "function") {
-        webgazer.setRegression("ridge");
-      }
-      if (typeof webgazer.setTracker === "function") {
-        webgazer.setTracker("clmtrackr");
-      }
-      if (typeof webgazer.saveDataAcrossSessions === "function") {
-        webgazer.saveDataAcrossSessions(true);
-      }
-
+      // Use WebGazer's defaults here. Some hosted builds expose configuration
+      // methods with incompatible signatures, causing "t is not a function".
       if (webgazer.params) {
         webgazer.params.showVideo = true;
         webgazer.params.showFaceOverlay = false;
@@ -279,7 +269,7 @@ const [debugData, setDebugData] = useState({});
       try { startCalibration(); } catch (e) { console.warn("Calibration could not start:", e); }
       checkGazeTimeout();
     } catch (err) {
-      console.error("WebGazer initialization failed:", err);
+      console.error("WebGazer initialization failed:", err, err?.stack);
       setError(`Failed to initialize eye tracking: ${err?.message || "Unknown error"}`);
       setIsLoading(false);
       webgazerInitialized.current = false;
