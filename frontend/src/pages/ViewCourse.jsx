@@ -7,6 +7,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import img from "../assets/empty.jpg"
 import Card from "../components/Card.jsx"
 import { setSelectedCourseData } from '../redux/courseSlice';
+import { setUserData } from '../redux/userSlice';
 import { FaLock, FaPlayCircle } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import { FaStar } from "react-icons/fa6";
@@ -85,9 +86,9 @@ console.log("Average Rating:", avgRating);
   }
 };
   useEffect(() => {
-    fetchCourseData()
-    checkEnrollment()
-  }, [courseId,courseData,lectureData])
+    fetchCourseData();
+    checkEnrollment();
+  }, [courseId, courseData, lectureData, userData?.enrolledCourses])
 
   useEffect(() => {
     if (!selectedLecture && selectedCourseData?.lectures?.length) {
@@ -163,7 +164,17 @@ const handleEnroll = async (courseId, userId) => {
   userId
 }, { withCredentials: true });
     
-setIsEnrolled(true)
+    // Refresh the authenticated user from the backend so Redux and the
+    // course page both reflect the enrollment persisted after payment.
+    const currentUser = await axios.get(serverUrl + "/api/user/currentuser", {
+      withCredentials: true,
+    });
+    dispatch(setUserData(currentUser.data));
+    setIsEnrolled(
+      currentUser.data?.enrolledCourses?.some((course) =>
+        (typeof course === "string" ? course : course?._id)?.toString() === courseId?.toString()
+      ) ?? true
+    );
     toast.success(verifyRes.data.message);
   } catch (verifyError) {
     toast.error("Payment verification failed.");
