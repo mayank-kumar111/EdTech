@@ -25,6 +25,7 @@ import EnrolledCourse from './pages/EnrolledCourse'
 import ViewLecture from './pages/ViewLecture'
 import SearchWithAi from './pages/SearchWithAi'
 import getAllReviews from './customHooks/getAllReviews'
+import FocusTracker from './components/FocusTracker'  
 
 export const serverUrl = "http://localhost:8000"
 
@@ -61,6 +62,7 @@ function App() {
         <Route path='/createlecture/:courseId' element={userData?.role === "educator"?<CreateLecture/>:<Navigate to={"/signup"}/>}/>
         <Route path='/editlecture/:courseId/:lectureId' element={userData?.role === "educator"?<EditLecture/>:<Navigate to={"/signup"}/>}/>
         <Route path='/forgotpassword' element={<ForgotPassword/>}/>
+        <Route path='/focusTracker/:courseId' element={userData ? <FocusTracker/> : <Navigate to={"/signup"}/>}/>
          </Routes>
 
          </>

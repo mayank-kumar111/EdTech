@@ -26,7 +26,7 @@ function ViewCourse() {
   const [selectedCreatorCourse,setSelectedCreatorCourse] = useState([])
    const [isEnrolled, setIsEnrolled] = useState(false);
    const [rating, setRating] = useState(0);
-   const [comment, setComment] = useState("");
+   const [comment, setComment] = useState("");  
    
    
   
@@ -220,9 +220,25 @@ setIsEnrolled(true)
             {!isEnrolled ?<button className="bg-[black] text-white px-6 py-2 rounded hover:bg-gray-700 mt-3" onClick={()=>handleEnroll(courseId , userData._id)}>
               Enroll Now
             </button> :
-            <button className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-gray-100 hover:border mt-3" onClick={()=>navigate(`/viewlecture/${courseId}`)}>
-             Watch Now
-            </button>
+            // <button className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-gray-100 hover:border mt-3" onClick={()=>navigate(`/viewlecture/${courseId}`)}>
+            //  Watch Now
+            // </button>
+
+            // <button className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-gray-100 hover:border mt-3" onClick={()=>navigate(`/focusTracker/${courseId}`)}>
+            //  Start Learning
+            // </button>
+
+            <button
+                className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-gray-100 hover:border mt-3"
+                onClick={() =>
+                  navigate(`/focusTracker/${courseId}`, {
+                    state: { videoUrl: selectedLecture?.videoUrl },
+                  })
+                }
+              >
+                Watch Now
+              </button>
+
             }
           </div>
         </div>
