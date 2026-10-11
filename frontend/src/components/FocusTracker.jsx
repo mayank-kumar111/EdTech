@@ -227,52 +227,90 @@ const [debugData, setDebugData] = useState({});
 
   const initializeWebGazer = useCallback(async () => {
     if (webgazerInitialized.current) return;
+
     try {
-      if (!window.webgazer) throw new Error("WebGazer not loaded");
-      setStatus("Requesting camera access...");
+      const webgazer = window.webgazer;
+      if (!webgazer) throw new Error("WebGazer library did not load.");
+
+      setError(null);
       setStatus("Initializing eye tracking...");
-      const webgazer = window.webgazer.setRegression("ridge").setTracker("clmtrackr").saveDataAcrossSessions(true);
-      if (window.webgazer.params) {
-        window.webgazer.params.showVideo = true;
-        window.webgazer.params.showFaceOverlay = false;
-        window.webgazer.params.showFaceFeedbackBox = false;
-        window.webgazer.params.showGazeDot = false;
+
+      // Do not chain these calls: WebGazer API versions do not consistently
+      // return the API object from configuration methods.
+      if (typeof webgazer.setRegression === "function") {
+        webgazer.setRegression("ridge");
+      }
+      if (typeof webgazer.setTracker === "function") {
+        webgazer.setTracker("clmtrackr");
+      }
+      if (typeof webgazer.saveDataAcrossSessions === "function") {
+        webgazer.saveDataAcrossSessions(true);
+      }
+
+      if (webgazer.params) {
+        webgazer.params.showVideo = true;
+        webgazer.params.showFaceOverlay = false;
+        webgazer.params.showFaceFeedbackBox = false;
+        webgazer.params.showGazeDot = false;
+      }
+
+      if (typeof webgazer.begin !== "function") {
+        throw new Error("The loaded WebGazer version does not expose begin().");
       }
       await webgazer.begin();
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      let attempts = 0;
-      while (attempts < 15) {
-        if (window.webgazer.isReady && window.webgazer.isReady()) break;
+
+      let ready = typeof webgazer.isReady !== "function";
+      for (let attempts = 0; attempts < 15 && !ready; attempts++) {
         await new Promise(resolve => setTimeout(resolve, 300));
-        attempts++;
+        ready = webgazer.isReady();
       }
-      if (attempts >= 15) throw new Error("WebGazer initialization timeout.");
-      window.webgazer.setGazeListener(processGazeData);
-      window.webgazer.showVideoPreview(true);
-      window.webgazer.showPredictionPoints(false);
+      if (!ready) throw new Error("WebGazer initialization timed out. Check camera permission and reload.");
+
+      if (typeof webgazer.setGazeListener !== "function") {
+        throw new Error("The loaded WebGazer version does not expose setGazeListener().");
+      }
+      webgazer.setGazeListener(processGazeData);
+      if (typeof webgazer.showVideoPreview === "function") webgazer.showVideoPreview(true);
+      if (typeof webgazer.showPredictionPoints === "function") webgazer.showPredictionPoints(false);
+
       webgazerInitialized.current = true;
       setIsLoading(false);
       setStatus("Please look at different parts of the screen to calibrate");
-      // automatic short calibration to set neutral gaze center
-      try { startCalibration(); } catch (e) { /* ignore */ }
+      try { startCalibration(); } catch (e) { console.warn("Calibration could not start:", e); }
       checkGazeTimeout();
     } catch (err) {
       console.error("WebGazer initialization failed:", err);
-  setError(`Failed to initialize eye tracking: ${err.message}`);
+      setError(`Failed to initialize eye tracking: ${err?.message || "Unknown error"}`);
       setIsLoading(false);
       webgazerInitialized.current = false;
+      try {
+        if (window.webgazer && typeof window.webgazer.end === "function") {
+          window.webgazer.end();
+        }
+      } catch (cleanupError) {
+        console.warn("WebGazer cleanup after initialization failure:", cleanupError);
+      }
     }
   }, [processGazeData, checkGazeTimeout, startCalibration]);
-
   const loadWebGazer = useCallback(() => {
-    if (window.webgazer) { initializeWebGazer(); return; }
-    const script = document.createElement("script");
+    setError(null);
+    setIsLoading(true);
+    if (window.webgazer) {
+      initializeWebGazer();
+      return;
+    }
+    // Reuse an existing script tag to avoid injecting duplicate WebGazer copies.
+    const existingScript = document.querySelector('script[data-webgazer-script="true"]');
+    const script = existingScript || document.createElement("script");
     script.src = "https://webgazer.cs.brown.edu/webgazer.js";
     script.async = true;
+    script.dataset.webgazerScript = "true";
     script.onload = () => initializeWebGazer();
-    script.onerror = () => { setError("Failed to load eye tracking library."); setIsLoading(false); };
-    document.head.appendChild(script);
-    cleanupFunctions.current.push(() => { if (script && script.parentNode) script.parentNode.removeChild(script); });
+    script.onerror = () => {
+      setError("Failed to load eye tracking library. Check your internet connection and try again.");
+      setIsLoading(false);
+    };
+    if (!existingScript) document.head.appendChild(script);
   }, [initializeWebGazer]);
 
   const cleanup = useCallback(() => {
@@ -310,7 +348,10 @@ const [debugData, setDebugData] = useState({});
       <div style={{ textAlign: "center", marginTop: "50px", color: "#E74C3C" }}>
         <h2>Error</h2>
         <p>{error}</p>
-        <button onClick={() => window.location.reload()} style={{ padding: "10px 20px", background: "#3498DB", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Refresh Page</button>
+        <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+          <button type="button" onClick={loadWebGazer} style={{ padding: "10px 20px", background: "#3498DB", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Retry Eye Tracking</button>
+          <button type="button" onClick={() => navigate(courseId ? `/viewcourse/${courseId}` : "/")} style={{ padding: "10px 20px", background: "#666", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Back to Course</button>
+        </div>
       </div>
     );
   }
