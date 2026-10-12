@@ -3,7 +3,7 @@ const path = require('node:path');
 
 const packageRoot = path.join(__dirname, '..', 'node_modules', '@webgazer-ts', 'core', 'dist');
 const files = ['webgazer-ts.js', 'webgazer.js', 'webgazer-ts.umd.cjs', 'webgazer-ts.umd.js'];
-const solutionPath = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh';
+const solutionPath = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619';
 let patchedFiles = 0;
 
 for (const name of files) {
