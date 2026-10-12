@@ -25,7 +25,8 @@
     "react-spinners": "^0.17.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.1.0",
-    "tailwindcss": "^4.1.10"
+    "tailwindcss": "^4.1.10",
+    "@mediapipe/face_mesh": "^0.4.1633559619"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
