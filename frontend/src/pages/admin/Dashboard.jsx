@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import {
   FiBookOpen, FiUsers, FiVideo, FiTrendingUp, FiPlus, FiSearch,
-  FiDownload, FiArrowUpRight, FiGraduationCap, FiFilter
+  FiDownload, FiArrowUpRight, FiAward, FiFilter
 } from 'react-icons/fi';
 import img from '../../assets/empty.jpg';
 
@@ -161,7 +161,7 @@ function Dashboard() {
               <FaArrowLeftLong />
             </button>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
-              <FiGraduationCap size={22} />
+              <FiAward size={22} />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-bold tracking-tight text-slate-950">Instructor workspace</p>
@@ -203,7 +203,7 @@ function Dashboard() {
 
         <section aria-label="Teaching metrics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label="Course enrollments" value={analytics.totalEnrollments.toLocaleString('en-IN')} helper="Total course seats filled across your courses" icon={FiUsers} tone="bg-blue-50 text-blue-700" />
-          <MetricCard label="Unique students" value={analytics.uniqueStudents.length.toLocaleString('en-IN')} helper="Distinct enrolled students across your courses" icon={FiGraduationCap} tone="bg-violet-50 text-violet-700" />
+          <MetricCard label="Unique students" value={analytics.uniqueStudents.length.toLocaleString('en-IN')} helper="Distinct enrolled students across your courses" icon={FiAward} tone="bg-violet-50 text-violet-700" />
           <MetricCard label="Lectures available" value={analytics.totalLectures.toLocaleString('en-IN')} helper={`Average ${analytics.averageLectures} lectures per course`} icon={FiVideo} tone="bg-teal-50 text-teal-700" />
           <MetricCard label="Average course price" value={formatMoney(analytics.averagePrice)} helper="Average listed price across your courses" icon={FiTrendingUp} tone="bg-amber-50 text-amber-700" />
         </section>
