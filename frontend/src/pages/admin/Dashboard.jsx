@@ -183,7 +183,7 @@ function Dashboard() {
                       <YAxis type="category" dataKey="name" width={145} interval={0} tick={{ fontSize: 11 }} />
                       <Tooltip formatter={(value) => [value, 'Lectures']} labelFormatter={(label) => `Course: ${label}`} />
                       <Bar dataKey="lectures" name="Lectures" fill="#7c3aed" radius={[0, 5, 5, 0]} maxBarSize={24} />
-                    </AreaChart>
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </ChartCard>
