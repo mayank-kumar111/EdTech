@@ -151,7 +151,7 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.enrollmentData} margin={{ top: 8, right: 12, left: 0, bottom: 48 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={-25} textAnchor="end" interval={0} height={65} tick={{ fontSize: 11 }} />
+                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => [value, 'Enrollments']} labelFormatter={(label) => `Course: ${label}`} />
                       <Bar dataKey="enrolled" name="Enrollments" fill="#2563eb" radius={[5, 5, 0, 0]} maxBarSize={48} />
@@ -165,7 +165,7 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.revenueData} margin={{ top: 8, right: 12, left: 8, bottom: 48 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={-25} textAnchor="end" interval={0} height={65} tick={{ fontSize: 11 }} />
+                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis tickFormatter={(value) => value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${value}`} />
                       <Tooltip formatter={(value) => [formatMoney(value), 'Estimated revenue']} labelFormatter={(label) => `Course: ${label}`} />
                       <Bar dataKey="revenue" name="Estimated revenue" fill="#0f766e" radius={[5, 5, 0, 0]} maxBarSize={48} />
@@ -179,7 +179,7 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.rows} margin={{ top: 8, right: 12, left: 0, bottom: 48 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={-25} textAnchor="end" interval={0} height={65} tick={{ fontSize: 11 }} />
+                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => [value, 'Lectures']} labelFormatter={(label) => `Course: ${label}`} />
                       <Area type="monotone" dataKey="lectures" name="Lectures" stroke="#7c3aed" fill="#c4b5fd" fillOpacity={0.45} strokeWidth={2} />
