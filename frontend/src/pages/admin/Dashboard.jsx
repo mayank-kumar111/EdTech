@@ -149,7 +149,7 @@ function Dashboard() {
               <ChartCard title="Enrollment by course" subtitle="Compare how many enrollments each course has received">
                 <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.enrollmentData} margin={{ top: 8, right: 12, left: 0, bottom: 48 }}>
+                    <BarChart data={analytics.enrollmentData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} />
@@ -163,7 +163,7 @@ function Dashboard() {
               <ChartCard title="Estimated revenue by course" subtitle="Based on listed price multiplied by enrollment count">
                 <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.revenueData} margin={{ top: 8, right: 12, left: 8, bottom: 48 }}>
+                    <BarChart data={analytics.revenueData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis tickFormatter={(value) => value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${value}`} />
@@ -177,7 +177,7 @@ function Dashboard() {
               <ChartCard title="Course content volume" subtitle="Number of lectures available in each course">
                 <div className="h-[320px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={analytics.rows} margin={{ top: 8, right: 12, left: 0, bottom: 48 }}>
+                    <AreaChart data={analytics.rows} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} />
