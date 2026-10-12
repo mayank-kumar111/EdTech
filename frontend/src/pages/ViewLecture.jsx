@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import webgazerEngine from '@webgazer-ts/core';
+import '@mediapipe/face_mesh';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlayCircle } from 'react-icons/fa';
