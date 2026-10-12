@@ -147,7 +147,7 @@ function Dashboard() {
           <>
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
               <ChartCard title="Enrollment by course" subtitle="Compare how many enrollments each course has received">
-                <div className="h-[320px] w-full">
+                <div className="w-full overflow-x-auto" style={{ height: Math.max(320, analytics.rows.length * 38) }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.enrollmentData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -161,7 +161,7 @@ function Dashboard() {
               </ChartCard>
 
               <ChartCard title="Estimated revenue by course" subtitle="Based on listed price multiplied by enrollment count">
-                <div className="h-[320px] w-full">
+                <div className="w-full overflow-x-auto" style={{ height: Math.max(320, analytics.rows.length * 38) }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.revenueData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -175,7 +175,7 @@ function Dashboard() {
               </ChartCard>
 
               <ChartCard title="Course content volume" subtitle="Number of lectures available in each course">
-                <div className="h-[320px] w-full">
+                <div className="w-full overflow-x-auto" style={{ height: Math.max(320, analytics.rows.length * 38) }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.rows} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
