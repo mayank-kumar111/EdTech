@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import webgazerEngine from '@webgazer-ts/core';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPlayCircle } from 'react-icons/fa';
@@ -26,7 +27,7 @@ function ViewLecture() {
       trackingTimerRef.current = null;
     }
     try {
-      const webgazer = window.webgazer;
+      const webgazer = webgazerEngine
       if (webgazer && typeof webgazer.clearGazeListener === "function") webgazer.clearGazeListener();
       if (webgazer && typeof webgazer.end === "function") webgazer.end();
     } catch (error) {
@@ -41,30 +42,13 @@ function ViewLecture() {
     setTrackingStatus("Starting eye tracking…");
 
     try {
-      if (!window.webgazer) {
-        let script = document.querySelector('script[data-webgazer-script="true"]');
-        if (!script) {
-          script = document.createElement("script");
-          script.src = "https://webgazer.cs.brown.edu/webgazer.js";
-          script.async = true;
-          script.dataset.webgazerScript = "true";
-          document.head.appendChild(script);
-        }
-        await new Promise((resolve, reject) => {
-          if (window.webgazer) return resolve();
-          script.addEventListener("load", resolve, { once: true });
-          script.addEventListener("error", () => reject(new Error("Could not load the WebGazer library. Check your internet connection.")), { once: true });
-        });
-      }
-
-      const webgazer = window.webgazer;
+      const webgazer = webgazerEngine;
       if (!webgazer || typeof webgazer.begin !== "function" || typeof webgazer.setGazeListener !== "function") {
-        throw new Error("WebGazer did not load with the expected API.");
+        throw new Error("The installed WebGazer package did not expose the expected API.");
       }
-
-      // The remote script reports "Invalid tracker selection" for tracker
-      // names that are not included in its current build. Keep its supported
-      // default tracker and avoid overriding it with a guessed tracker name.
+      // Use documented identifiers from the bundled package; avoid the broken remote script.
+      webgazer.setTracker("TFFacemesh");
+      webgazer.setRegression("ridge");
       await webgazer.begin();
       webgazer.setGazeListener((gaze) => {
         if (!gaze || gaze.x == null || gaze.y == null || !videoRef.current) return;
