@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import webgazerEngine from "@webgazer-ts/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const FocusTracker = () => {
@@ -193,13 +194,13 @@ const [debugData, setDebugData] = useState({});
     };
     // temporary listener
     const listener = (d) => collect(d);
-    if (window.webgazer && typeof window.webgazer.setGazeListener === 'function') {
-      window.webgazer.setGazeListener(listener);
+    if (webgazerEngine && typeof webgazerEngine.setGazeListener === 'function') {
+      webgazerEngine.setGazeListener(listener);
     }
     setTimeout(() => {
       // stop collecting: restore original listener
-      if (window.webgazer && typeof window.webgazer.setGazeListener === 'function') {
-        window.webgazer.setGazeListener(processGazeData);
+      if (webgazerEngine && typeof webgazerEngine.setGazeListener === 'function') {
+        webgazerEngine.setGazeListener(processGazeData);
       }
       const samples = calibrateSamples.current;
       if (samples.length === 0) {
@@ -229,14 +230,15 @@ const [debugData, setDebugData] = useState({});
     if (webgazerInitialized.current) return;
 
     try {
-      const webgazer = window.webgazer;
+      const webgazer = webgazerEngine;
       if (!webgazer) throw new Error("WebGazer library did not load.");
 
       setError(null);
       setStatus("Initializing eye tracking...");
 
-      // Use WebGazer's defaults here. Some hosted builds expose configuration
-      // methods with incompatible signatures, causing "t is not a function".
+      // Configure the locally bundled WebGazer package.
+      if (typeof webgazer.setTracker === "function") webgazer.setTracker("TFFacemesh");
+      if (typeof webgazer.setRegression === "function") webgazer.setRegression("ridge");
       if (webgazer.params) {
         webgazer.params.showVideo = true;
         webgazer.params.showFaceOverlay = false;
@@ -274,8 +276,8 @@ const [debugData, setDebugData] = useState({});
       setIsLoading(false);
       webgazerInitialized.current = false;
       try {
-        if (window.webgazer && typeof window.webgazer.end === "function") {
-          window.webgazer.end();
+        if (webgazerEngine && typeof webgazerEngine.end === "function") {
+          webgazerEngine.end();
         }
       } catch (cleanupError) {
         console.warn("WebGazer cleanup after initialization failure:", cleanupError);
@@ -285,29 +287,14 @@ const [debugData, setDebugData] = useState({});
   const loadWebGazer = useCallback(() => {
     setError(null);
     setIsLoading(true);
-    if (window.webgazer) {
-      initializeWebGazer();
-      return;
-    }
-    // Reuse an existing script tag to avoid injecting duplicate WebGazer copies.
-    const existingScript = document.querySelector('script[data-webgazer-script="true"]');
-    const script = existingScript || document.createElement("script");
-    script.src = "https://webgazer.cs.brown.edu/webgazer.js";
-    script.async = true;
-    script.dataset.webgazerScript = "true";
-    script.onload = () => initializeWebGazer();
-    script.onerror = () => {
-      setError("Failed to load eye tracking library. Check your internet connection and try again.");
-      setIsLoading(false);
-    };
-    if (!existingScript) document.head.appendChild(script);
+    initializeWebGazer();
   }, [initializeWebGazer]);
 
   const cleanup = useCallback(() => {
     try {
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-      if (window.webgazer && webgazerInitialized.current) {
-        window.webgazer.clearGazeListener(); window.webgazer.end();
+      if (webgazerEngine && webgazerInitialized.current) {
+        webgazerEngine.clearGazeListener(); webgazerEngine.end();
       }
       cleanupFunctions.current.forEach(fn => { try { fn(); } catch {} });
       const alertBox = document.getElementById("alertBox");
