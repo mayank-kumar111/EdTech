@@ -151,10 +151,10 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.enrollmentData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
-                      <YAxis allowDecimals={false} />
+                      <XAxis type="number" allowDecimals={false} />
+                      <YAxis type="category" dataKey="name" width={145} interval={0} tick={{ fontSize: 11 }} />
                       <Tooltip formatter={(value) => [value, 'Enrollments']} labelFormatter={(label) => `Course: ${label}`} />
-                      <Bar dataKey="enrolled" name="Enrollments" fill="#2563eb" radius={[5, 5, 0, 0]} maxBarSize={48} />
+                      <Bar dataKey="enrolled" name="Enrollments" fill="#2563eb" radius={[0, 5, 5, 0]} maxBarSize={24} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -165,8 +165,8 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.revenueData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
-                      <YAxis tickFormatter={(value) => value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${value}`} />
+                      <XAxis type="number" tickFormatter={(value) => value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${value}`} />
+                      <YAxis type="category" dataKey="name" width={145} interval={0} tick={{ fontSize: 11 }} />
                       <Tooltip formatter={(value) => [formatMoney(value), 'Estimated revenue']} labelFormatter={(label) => `Course: ${label}`} />
                       <Bar dataKey="revenue" name="Estimated revenue" fill="#0f766e" radius={[5, 5, 0, 0]} maxBarSize={48} />
                     </BarChart>
@@ -179,10 +179,10 @@ function Dashboard() {
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={analytics.rows} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" angle={0} textAnchor="end" interval="preserveStartEnd" height={35} tick={{ fontSize: 11 }} />
+                      <XAxis type="number" allowDecimals={false} />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value) => [value, 'Lectures']} labelFormatter={(label) => `Course: ${label}`} />
-                      <Area type="monotone" dataKey="lectures" name="Lectures" stroke="#7c3aed" fill="#c4b5fd" fillOpacity={0.45} strokeWidth={2} />
+                      <Bar dataKey="lectures" name="Lectures" fill="#7c3aed" radius={[0, 5, 5, 0]} maxBarSize={24} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
